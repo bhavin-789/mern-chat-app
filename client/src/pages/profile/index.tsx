@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { colors, getColor } from "@/lib/utils";
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -16,9 +16,14 @@ import {
   REMOVE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_ROUTE,
 } from "@/utils/constants";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { setUserInfo } from "@/store/slices/storeSlice";
 
 const Profile = () => {
-  const { userInfo, setUserInfo } = useAppStore();
+  // const { userInfo, setUserInfo } = useAppStore();
+  const { userInfo } = useSelector((state: RootState) => state.store);
+  const dispatch = useDispatch();
   useEffect(() => {
     if (userInfo.profileSetup) {
       setFirstName(userInfo.firstName);
@@ -62,12 +67,15 @@ const Profile = () => {
           { withCredentials: true }
         );
         if (response.status === 200 && response.data) {
-          setUserInfo({ ...response.data });
+          dispatch(setUserInfo({ ...response.data }));
+          // setUserInfo({ ...response.data });
           toast.success("Profile updated successfully.");
           navigate("/chat");
         }
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          console.log("Error during save changes", error.message);
+        }
       }
     }
   };
@@ -93,7 +101,8 @@ const Profile = () => {
         withCredentials: true,
       });
       if (response.status === 200 && response.data.image) {
-        setUserInfo({ ...userInfo, image: response.data.image });
+        dispatch(setUserInfo({ ...userInfo, image: response.data.image }));
+        // setUserInfo({ ...userInfo, image: response.data.image });
         toast.success("Image updated successfully.");
       }
     }
@@ -105,7 +114,8 @@ const Profile = () => {
         withCredentials: true,
       });
       if (response.status === 200) {
-        setUserInfo({ ...userInfo, image: null });
+        dispatch(setUserInfo({ ...userInfo, image: null }));
+        // setUserInfo({ ...userInfo, image: null });
         toast.success("Image removed successfully.");
         setImage(null);
       }

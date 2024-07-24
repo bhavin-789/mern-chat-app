@@ -1,26 +1,36 @@
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { HOST } from "@/utils/constants";
 import { getColor } from "@/lib/utils";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setSelectedChatData,
+  setSelectedChatMessages,
+  setSelectedChatType,
+} from "@/store/slices/storeSlice";
+import { RootState } from "@/store";
 
 const ContactList = ({ contacts, isChannel = false }) => {
-  const {
-    selectedChatData,
-    selectedChatType,
-    setSelectedChatType,
-    setSelectedChatData,
-    setSelectedChatMessages,
-  } = useAppStore();
+  // const {
+  //   selectedChatData,
+  //   selectedChatType,
+  //   setSelectedChatType,
+  //   setSelectedChatData,
+  //   setSelectedChatMessages,
+  // } = useAppStore();
+
+  const dispatch = useDispatch();
+  const { selectedChatData } = useSelector((state: RootState) => state.store);
 
   const handleClick = (contact) => {
     if (isChannel) {
-      setSelectedChatType("channel");
+      dispatch(setSelectedChatType("channel"));
     } else {
-      setSelectedChatType("contact");
+      dispatch(setSelectedChatType("contact"));
     }
-    setSelectedChatData(contact);
+    dispatch(setSelectedChatData(contact));
     if (selectedChatData && selectedChatData._id !== contact._id) {
-      setSelectedChatMessages([]);
+      dispatch(setSelectedChatMessages([]));
     }
   };
   return (

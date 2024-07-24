@@ -19,13 +19,17 @@ import {
   CREATE_CHANNEL_ROUTE,
   GET_ALL_CONTACTS_ROUTE,
 } from "@/utils/constants";
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import MultipleSelector from "@/components/ui/multiselect";
+import { useDispatch } from "react-redux";
+import { addChannel } from "@/store/slices/storeSlice";
 
 const CreateChannel = () => {
-  const { setSelectedChatType, setSelectedChatData, addChannel } =
-    useAppStore();
+  // const { setSelectedChatType, setSelectedChatData, addChannel } =
+  //   useAppStore();
+  const dispatch = useDispatch();
+
   const [newChannelModal, setNewChannelModal] = useState(false);
   const [allContacts, setAllContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -40,7 +44,7 @@ const CreateChannel = () => {
         setAllContacts(response.data.contacts);
       }
     };
-    // getData();
+    getData();
   }, []);
 
   const creteChannel = async () => {
@@ -58,7 +62,7 @@ const CreateChannel = () => {
           setChannelName("");
           setSelectedContacts([]);
           setNewChannelModal(false);
-          addChannel(response.data.channel);
+          dispatch(addChannel(response.data.channel));
         }
       }
     } catch (error) {
@@ -73,9 +77,10 @@ const CreateChannel = () => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <button onClick={() => setNewChannelModal(true)}>
-              <FaPlus className="text-neutral-400 font-light text-opacity-90 text-sm hover:text-neutral-100 cursor-pointer transition-all duration-300" />
-            </button>
+            <FaPlus
+              onClick={() => setNewChannelModal(true)}
+              className="text-neutral-400 font-light text-opacity-90 text-sm hover:text-neutral-100 cursor-pointer transition-all duration-300"
+            />
           </TooltipTrigger>
           <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3 text-white">
             Create New Channel

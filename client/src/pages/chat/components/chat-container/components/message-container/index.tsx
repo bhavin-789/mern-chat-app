@@ -1,4 +1,4 @@
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import { apiClient } from "@/lib/api-client";
@@ -9,38 +9,54 @@ import {
 } from "@/utils/constants";
 import { MdFolderZip } from "react-icons/md";
 import { IoMdArrowRoundDown } from "react-icons/io";
-import { Divide } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import {
+  // getMessages,
+  setFileDownloadProgress,
+  setIsDownloading,
+  setSelectedChatMessages,
+} from "@/store/slices/storeSlice";
 
 const MessageContainer = () => {
   const scrollRef = useRef();
-  const {
-    selectedChatType,
-    selectedChatData,
-    userInfo,
-    selectedChatMessages,
-    setSelectedChatMessages,
-    setIsDownloading,
-    setFileDownloadProgress,
-  } = useAppStore();
+  // const {
+  //   userInfo,
+  //   selectedChatType,
+  //   selectedChatData,
+  //   selectedChatMessages,
+  //   setSelectedChatMessages,
+  //   setIsDownloading,
+  //   setFileDownloadProgress,
+  // } = useAppStore();
+
+  const [pageMessages, setPageMessages] = useState([]);
+
+  const { userInfo } = useSelector((state: RootState) => state.store);
+  const { selectedChatType, selectedChatData, selectedChatMessages } =
+    useSelector((state: RootState) => state.store);
+
+  const dispatch = useDispatch();
 
   const [showImage, setShowImage] = useState(false);
-  const [messagesFetched, setMessagesFetched] = useState(false);
   const [imageURL, setImageURL] = useState(null);
 
-  useEffect(() => {
-    const getMessages = async () => {
+  const getMessages = async () => {
+    if (selectedChatData._id && selectedChatType === "contact") {
       try {
         const response = await apiClient.post(
           GET_ALL_MESSAGES_ROUTE,
           { id: selectedChatData._id },
           { withCredentials: true }
         );
+        console.log("response", response);
+
         if (response.data.messages) {
-          setSelectedChatMessages(response.data.messages);
-          // setMessagesFetched(true);
+          setPageMessages(response.data.messages);
+          // dispatch(setSelectedChatMessages(response.data.messages));
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -50,54 +66,41 @@ const MessageContainer = () => {
           );
         }
       }
-    };
+    }
+  };
 
-    const getChannelMessages = async () => {
+  const getChannelMessages = async () => {
+    if (selectedChatData._id && selectedChatType === "channel") {
       try {
         const response = await apiClient.get(
           `${GET_CHANNEL_MESSAGES_ROUTE}/${selectedChatData._id}`,
           { withCredentials: true }
         );
         if (response.data.messages) {
-          setSelectedChatMessages(response.data.messages);
-          // setMessagesFetched(true);
+          setPageMessages(response.data.messages);
+          // dispatch(setSelectedChatMessages(response.data.messages));
         }
       } catch (error) {
         if (error instanceof Error) {
           console.error(
-            "Error during fetching all the messages",
+            "Error during fetching all the channel messages",
             error.message
           );
         }
       }
-    };
-
-    if (selectedChatData._id) {
-      if (selectedChatType === "contact") {
-        // getMessages();
-      } else if (selectedChatType === "channel") {
-        // getChannelMessages();
-      }
     }
-    // if (
-    //   selectedChatData._id &&
-    //   selectedChatType === "contact" &&
-    //   !messagesFetched
-    // ) {
-    //   // getMessages();
-    // }
-  }, [
-    selectedChatType,
-    selectedChatData,
-    setSelectedChatMessages,
-    // messagesFetched,
-  ]);
+  };
+
+  useEffect(() => {
+    getMessages();
+    getChannelMessages();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behaviour: "smooth" });
     }
-  }, [selectedChatMessages]);
+  }, [pageMessages]);
 
   const checkIfImage = (filePath) => {
     const imageRegex =
@@ -107,7 +110,8 @@ const MessageContainer = () => {
 
   const renderMessages = () => {
     let lastDate = null;
-    return selectedChatMessages.map((message, index) => {
+    // return selectedChatMessages.map((message, index) => {
+    return pageMessages.map((message, index) => {
       const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
       const showDate = messageDate !== lastDate;
       lastDate = messageDate;
@@ -126,14 +130,14 @@ const MessageContainer = () => {
   };
 
   const downloadFile = async (url) => {
-    setIsDownloading(true);
-    setFileDownloadProgress(0);
+    dispatch(setIsDownloading(true));
+    dispatch(setFileDownloadProgress(0));
     const response = await apiClient.get(`${HOST}/${url}`, {
       responseType: "blob",
       onDownloadProgress: (progressEvent) => {
         const { loaded, total } = progressEvent;
         const percentCompleted = Math.round((loaded * 100) / total);
-        setFileDownloadProgress(percentCompleted);
+        dispatch(setFileDownloadProgress(percentCompleted));
       },
     });
     const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
@@ -144,71 +148,74 @@ const MessageContainer = () => {
     link.click();
     link.remove();
     window.URL.revokeObjectURL(urlBlob);
-    setIsDownloading(false);
-    setFileDownloadProgress(0);
+    dispatch(setIsDownloading(false));
+    dispatch(setFileDownloadProgress(0));
   };
 
-  const renderDMMessages = (message) => (
-    <div
-      className={`${
-        message.sender === selectedChatData._id ? "text-left" : "text-right"
-      }`}
-    >
-      {message.messageType === "text" && (
-        <div
-          className={`${
-            message.sender !== selectedChatData._id
-              ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-          } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-        >
-          {message.content}
-        </div>
-      )}
-      {message.messageType === "file" && (
-        <div
-          className={`${
-            message.sender !== selectedChatData._id
-              ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-          } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
-        >
-          {checkIfImage(message.fileUrl) ? (
-            <div
-              className="cursor-pointer"
-              onClick={() => {
-                setShowImage(true);
-                setImageURL(message.fileUrl);
-              }}
-            >
-              <img
-                src={`${HOST}/${message.fileUrl}`}
-                alt="image"
-                height={300}
-                width={300}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-4">
-              <span className="text-white/8 text-3xl bg-black/20 rounded-full p-3">
-                <MdFolderZip />
-              </span>
-              <span>{message.fileUrl.split("/").pop()}</span>
-              <span
-                className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                onClick={() => downloadFile(message.fileUrl)}
+  const renderDMMessages = (message) => {
+    console.log("renderDMMessages: ", message);
+    return (
+      <div
+        className={`${
+          message.sender === selectedChatData._id ? "text-left" : "text-right"
+        }`}
+      >
+        {message.messageType === "text" && (
+          <div
+            className={`${
+              message.sender !== selectedChatData._id
+                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
+                : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+            } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+          >
+            {message.content}
+          </div>
+        )}
+        {message.messageType === "file" && (
+          <div
+            className={`${
+              message.sender !== selectedChatData._id
+                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
+                : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+            } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+          >
+            {checkIfImage(message.fileUrl) ? (
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  setShowImage(true);
+                  setImageURL(message.fileUrl);
+                }}
               >
-                <IoMdArrowRoundDown />
-              </span>
-            </div>
-          )}
+                <img
+                  src={`${HOST}/${message.fileUrl}`}
+                  alt="image"
+                  height={300}
+                  width={300}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-4">
+                <span className="text-white/8 text-3xl bg-black/20 rounded-full p-3">
+                  <MdFolderZip />
+                </span>
+                <span>{message.fileUrl.split("/").pop()}</span>
+                <span
+                  className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                  onClick={() => downloadFile(message.fileUrl)}
+                >
+                  <IoMdArrowRoundDown />
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="text-xs text-grey-600">
+          {moment(message.timestamp).format("LT")}
         </div>
-      )}
-      <div className="text-xs text-grey-600">
-        {moment(message.timestamp).format("LT")}
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderChannelMessages = (message) => {
     return (

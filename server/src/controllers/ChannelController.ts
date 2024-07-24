@@ -79,7 +79,6 @@ export const getChannelMessages = async (req: CustomRequest, res: Response) => {
     // },
     // });
 
-    console.log(channel);
     if (!channel) {
       return res.status(404).json({ message: "Channel not found!" });
     }

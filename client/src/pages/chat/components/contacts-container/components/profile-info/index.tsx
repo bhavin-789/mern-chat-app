@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { HOST, LOGOUT_ROUTE } from "@/utils/constants";
 import { FiEdit2 } from "react-icons/fi";
 import { IoPowerSharp } from "react-icons/io5";
@@ -12,9 +12,14 @@ import {
 } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "@/lib/api-client";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { setUserInfo } from "@/store/slices/storeSlice";
 
 const ProfileInfo = () => {
-  const { userInfo, setUserInfo } = useAppStore();
+  // const { userInfo, setUserInfo } = useAppStore();
+  const { userInfo } = useSelector((state: RootState) => state.store);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const logOut = async () => {
@@ -26,7 +31,7 @@ const ProfileInfo = () => {
       );
       if (response.status === 200) {
         navigate("/auth");
-        setUserInfo(null);
+        dispatch(setUserInfo(null));
       }
     } catch (error) {
       if (error instanceof Error) {

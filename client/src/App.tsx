@@ -4,26 +4,33 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Auth from "./pages/auth";
 import Chat from "./pages/chat";
 import Profile from "./pages/profile";
-import { useAppStore } from "./store";
+// import { useAppStore } from "./store";
 import { GET_USER_INFO } from "./utils/constants";
 import { apiClient } from "./lib/api-client";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./store";
+import { setUserInfo } from "./store/slices/storeSlice";
 
 const App: FC = () => {
-  const PrivateRoute = ({ children }) => {
-    const { userInfo } = useAppStore();
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector((state: RootState) => state.store);
+
+  const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+    // const { userInfo } = useAppStore();
     const isAuthenticated = !!userInfo;
     return isAuthenticated ? children : <Navigate to="/auth" />;
   };
 
-  const AuthRoute = ({ children }) => {
-    const { userInfo } = useAppStore();
+  const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+    // const { userInfo } = useAppStore();
+    // const { userInfo } = useSelector((state: RootState) => state.store);
     const isAuthenticated = !!userInfo;
     return isAuthenticated ? <Navigate to="/chat" /> : children;
   };
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const { userInfo, setUserInfo } = useAppStore();
+  // const { userInfo, setUserInfo } = useAppStore();
 
   useEffect(() => {
     const getUSerData = async () => {
@@ -32,12 +39,15 @@ const App: FC = () => {
           withCredentials: true,
         });
         if (response.status === 200 && response.data.id) {
-          setUserInfo(response.data);
+          // setUserInfo(response.data);
+          dispatch(setUserInfo(response.data));
         } else {
-          setUserInfo(undefined);
+          // setUserInfo(undefined);
+          dispatch(setUserInfo(undefined));
         }
       } catch (error) {
-        setUserInfo(undefined);
+        // setUserInfo(undefined);
+        dispatch(setUserInfo(undefined));
       } finally {
         setLoading(false);
       }
@@ -50,7 +60,7 @@ const App: FC = () => {
   }, [userInfo, setUserInfo]);
 
   if (loading) {
-    return <p>LOading...</p>;
+    return <p>Loading...</p>;
   }
 
   return (

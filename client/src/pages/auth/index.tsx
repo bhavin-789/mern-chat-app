@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiClient } from "@/lib/api-client";
-import { useAppStore } from "@/store";
+import { setUserInfo } from "@/store/slices/storeSlice";
+// import { useAppStore } from "@/store";
 import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { setUserInfo } = useAppStore();
+  // const { setUserInfo } = useAppStore();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -53,7 +56,8 @@ const Auth = () => {
         { withCredentials: true }
       );
       if (response.data.user.id) {
-        setUserInfo(response.data.user);
+        dispatch(setUserInfo(response.data.user));
+        // setUserInfo(response.data.user);
         if (response.data.user.profileSetup) {
           navigate("/chat");
         } else {
@@ -71,16 +75,16 @@ const Auth = () => {
         { withCredentials: true }
       );
       if (response.status === 201) {
-        setUserInfo(response.data.user);
+        // setUserInfo(response.data.user);
+        dispatch(setUserInfo(response.data.user));
         navigate("/profile");
       }
-      console.log({ response });
     }
   };
 
   return (
-    <div className="h-[100vh] w-[100vw] flex justify-center items-center">
-      <div className="h-[80vh] bg-white border-2 border-white text-opacity-90 shadow-2xl w-[80vw] md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl grid xl:grid-cols-2">
+    <div className="min-h-[100vh] w-[100vw] flex justify-center items-center">
+      <div className="min-h-[80vh] bg-white border-2 border-white text-opacity-90 shadow-2xl w-[80vw] md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl grid xl:grid-cols-2">
         <div className="flex flex-col gap-10 items-center justify-center">
           <div className="flex items-center justify-center flex-col">
             <div className="flex items-center justify-center">

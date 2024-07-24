@@ -3,22 +3,33 @@ import { GrAttachment } from "react-icons/gr";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import EmojiPicker from "emoji-picker-react";
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import { useSocket } from "@/context/SocketContext";
 import { apiClient } from "@/lib/api-client";
 import { UPLOAD_FILE_ROUTE } from "@/utils/constants";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import {
+  setFileUploadProgress,
+  setIsUploading,
+} from "@/store/slices/storeSlice";
 
 const MessageBar = () => {
   const emojiRef = useRef<HTMLDivElement>(null);
   const socket = useSocket();
   const fileInputRef = useRef(null);
-  const {
-    selectedChatType,
-    selectedChatData,
-    userInfo,
-    setIsUploading,
-    setFileUploadProgress,
-  } = useAppStore();
+  // const {
+  //   selectedChatType,
+  //   selectedChatData,
+  //   userInfo,
+  //   setIsUploading,
+  //   setFileUploadProgress,
+  // } = useAppStore();
+  const { userInfo } = useSelector((state: RootState) => state.store);
+  const { selectedChatType, selectedChatData } = useSelector(
+    (state: RootState) => state.store
+  );
+  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
@@ -59,15 +70,20 @@ const MessageBar = () => {
       if (file) {
         const formData = new FormData();
         formData.append("file", file);
-        setIsUploading(true);
+        dispatch(setIsUploading(true));
         const response = await apiClient.post(UPLOAD_FILE_ROUTE, formData, {
           withCredentials: true,
           onUploadProgress: (data) => {
-            setFileUploadProgress(Math.round((100 * data.loaded) / data.total));
+            dispatch(
+              setFileUploadProgress(
+                Math.round((100 * data.loaded) / data.total)
+              )
+            );
           },
         });
         if (response.status === 200 && response.data) {
-          setIsUploading(false);
+          dispatch(setIsUploading(false));
+          // setIsUploading(false);
           if (selectedChatType === "contact") {
             socket.emit("sendMessage", {
               sender: userInfo.id,

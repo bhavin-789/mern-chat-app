@@ -1,6 +1,13 @@
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
+import { RootState } from "@/store";
+import {
+  addChannelInChannelList,
+  addContactsInDMContacts,
+  addMessage,
+} from "@/store/slices/storeSlice";
 import { HOST } from "@/utils/constants";
 import { createContext, useContext, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
 
 const socketContext = createContext(null);
@@ -11,7 +18,12 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }) => {
   const socket = useRef();
-  const { userInfo } = useAppStore();
+  // const { userInfo } = useAppStore();
+  const { userInfo } = useSelector((state: RootState) => state.store);
+  const { selectedChatType, selectedChatData } = useSelector(
+    (state: RootState) => state.store
+  );
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userInfo) {
@@ -24,12 +36,12 @@ export const SocketProvider = ({ children }) => {
       });
 
       const handleReceiveMessage = (message) => {
-        const {
-          selectedChatType,
-          selectedChatData,
-          addMessage,
-          addContactsInDMContacts,
-        } = useAppStore.getState();
+        // const {
+        //   selectedChatType,
+        //   selectedChatData,
+        //   addMessage,
+        //   addContactsInDMContacts,
+        // } = useAppStore.getState();
 
         if (
           selectedChatType !== undefined &&
@@ -37,18 +49,18 @@ export const SocketProvider = ({ children }) => {
             selectedChatData._id === message.recipient._id)
         ) {
           console.log("message received", message);
-          addMessage(message);
+          dispatch(addMessage(message));
         }
-        addContactsInDMContacts(message);
+        dispatch(addContactsInDMContacts(message));
       };
 
       const handleReceiveChannelMessage = (message) => {
-        const {
-          selectedChatType,
-          selectedChatData,
-          addMessage,
-          addChannelInChannelList,
-        } = useAppStore.getState();
+        // const {
+        //   selectedChatType,
+        //   selectedChatData,
+        //   addMessage,
+        //   addChannelInChannelList,
+        // } = useAppStore.getState();
 
         if (
           selectedChatType !== undefined &&
@@ -56,7 +68,7 @@ export const SocketProvider = ({ children }) => {
         ) {
           addMessage(message);
         }
-        addChannelInChannelList(message);
+        dispatch(addChannelInChannelList(message));
       };
 
       socket.current.on("receiveMessage", handleReceiveMessage);

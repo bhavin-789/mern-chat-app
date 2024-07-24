@@ -1,11 +1,18 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
-import { useAppStore } from "@/store";
+import { RootState } from "@/store";
+import { closeChat } from "@/store/slices/storeSlice";
+// import { useAppStore } from "@/store";
 import { HOST } from "@/utils/constants";
 import { RiCloseFill } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
 
 const ChatHeader = () => {
-  const { closeChat, selectedChatData, selectedChatType } = useAppStore();
+  // const { closeChat, selectedChatData, selectedChatType } = useAppStore();
+  const { selectedChatType, selectedChatData } = useSelector(
+    (state: RootState) => state.store
+  );
+  const dispatch = useDispatch();
   return (
     <div className="h-[10vh] border-b-2 border-[#2f303b] flex items-center justify-between px-20">
       <div className="flex gap-5 items-center justify-between w-full">
@@ -49,7 +56,7 @@ const ChatHeader = () => {
         <div className="flex gap-5 items-center justify-center">
           <button
             className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-            onClick={closeChat}
+            onClick={() => dispatch(closeChat())}
           >
             <RiCloseFill className="text-3xl" />
           </button>

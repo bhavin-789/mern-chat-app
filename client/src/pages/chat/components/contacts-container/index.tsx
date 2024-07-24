@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import NewDM from "./components/new-dm";
 import ProfileInfo from "./components/profile-info";
 import { apiClient } from "@/lib/api-client";
@@ -6,44 +6,58 @@ import {
   GET_DM_CONTACTS_ROUTE,
   GET_USER_CHANNEL_ROUTE,
 } from "@/utils/constants";
-import { useAppStore } from "@/store";
+// import { useAppStore } from "@/store";
 import ContactList from "@/components/ContactList";
 import CreateChannel from "./components/create-channel";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import {
+  setChannels,
+  setDirectMessagesContacts,
+} from "@/store/slices/storeSlice";
 
 const ContactsContainer = () => {
-  const {
-    setDirectMessagesContacts,
-    directMessagesContacts,
-    channels,
-    setChannels,
-  } = useAppStore();
+  // const {
+  //   setDirectMessagesContacts,
+  //   directMessagesContacts,
+  //   channels,
+  //   setChannels,
+  // } = useAppStore();
+  const { directMessagesContacts, channels } = useSelector(
+    (state: RootState) => state.store
+  );
 
-  const [data, setData] = useState([]);
-
-  console.log("data===", data);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const getContacts = async () => {
       const response = await apiClient.get(GET_DM_CONTACTS_ROUTE, {
         withCredentials: true,
       });
+      console.log("getContacts: ", response.data);
       if (response.data.contacts) {
-        //  setData(response.data.contacts);
-        //  console.log("response.data.contacts===", response.data.contacts);
-        setDirectMessagesContacts(response.data.contacts);
+        // setData(response.data.contacts);
+        dispatch(setDirectMessagesContacts(response.data.contacts));
       }
     };
-    console.log("===========>>>>>>");
     const getChannels = async () => {
       const response = await apiClient.get(GET_USER_CHANNEL_ROUTE, {
         withCredentials: true,
       });
+      console.log("getChannels: ", response.data);
       if (response.data.channels) {
-        setChannels(response.data.channels);
+        dispatch(setChannels(response.data.channels));
       }
     };
-    getContacts();
-    getChannels();
+    // if (directMessagesContacts.length === 0) {
+    //   // getContacts();
+    // }
+
+    // if (channels.length === 0) {
+    // getChannels();
+    // }
+    // getContacts();
+    // getChannels();
   }, []);
 
   return (
@@ -57,7 +71,7 @@ const ContactsContainer = () => {
           <NewDM />
         </div>
         <div className="max-h-38vh overflow-y-auto scrollbar-hidden">
-          <ContactList contacts={data} />
+          <ContactList contacts={directMessagesContacts} />
         </div>
       </div>
       <div className="my-5">
@@ -109,7 +123,7 @@ const Logo = () => {
   );
 };
 
-const Title = ({ text }) => {
+const Title = ({ text }: { text: string }) => {
   return (
     <h6 className="uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm">
       {text}

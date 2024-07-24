@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import UserModel from '../models/UserModel';
-import { sign } from 'jsonwebtoken';
-import { compare } from 'bcrypt';
-import { renameSync, unlinkSync } from 'fs';
+import { Request, Response } from "express";
+import UserModel from "../models/UserModel";
+import { sign } from "jsonwebtoken";
+import { compare } from "bcrypt";
+import { renameSync, unlinkSync } from "fs";
 
 interface CustomRequest extends Request {
   userId?: string;
@@ -22,14 +22,14 @@ export const signup = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res
         .status(400)
-        .json({ message: 'Email and Password both are required!' });
+        .json({ message: "Email and Password both are required!" });
     }
     const user = await UserModel.create({ email, password });
 
-    res.cookie('jwt', createToken(email, user._id.toString()), {
+    res.cookie("jwt", createToken(email, user._id.toString()), {
       maxAge,
       secure: true,
-      sameSite: 'none',
+      sameSite: "none",
     });
     return res.status(201).json({
       user: {
@@ -40,8 +40,8 @@ export const signup = async (req: Request, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while create the user', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while create the user", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -52,23 +52,23 @@ export const login = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res
         .status(400)
-        .json({ message: 'Email and Password both are required!' });
+        .json({ message: "Email and Password both are required!" });
     }
     const user = await UserModel.findOne({ email });
     if (!user) {
       return res
         .status(404)
-        .json({ message: 'User with the given email not found!' });
+        .json({ message: "User with the given email not found!" });
     }
     const auth = await compare(password, user.password);
     if (!auth) {
-      return res.status(400).json({ message: 'Password is incorrect!' });
+      return res.status(400).json({ message: "Password is incorrect!" });
     }
 
-    res.cookie('jwt', createToken(email, user?._id?.toString()), {
+    res.cookie("jwt", createToken(email, user?._id?.toString()), {
       maxAge,
       secure: true,
-      sameSite: 'none',
+      sameSite: "none",
     });
     return res.status(200).json({
       user: {
@@ -83,8 +83,8 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while login the user', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while login the user", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -95,7 +95,7 @@ export const userInfo = async (req: CustomRequest, res: Response) => {
     if (!userData) {
       return res
         .status(404)
-        .json({ message: 'User with the given id not found.' });
+        .json({ message: "User with the given id not found." });
     }
     return res.status(200).json({
       id: userData._id,
@@ -108,8 +108,8 @@ export const userInfo = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while fetching the user info', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while fetching the user info", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -121,7 +121,7 @@ export const updateProfile = async (req: CustomRequest, res: Response) => {
     if (!firstName || !lastName) {
       return res
         .status(401)
-        .json({ message: 'Firstname, lastname and color are required!' });
+        .json({ message: "Firstname, lastname and color are required!" });
     }
     const userData = await UserModel.findByIdAndUpdate(
       userId,
@@ -140,8 +140,8 @@ export const updateProfile = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while fetching the user info', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while fetching the user info", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -149,11 +149,11 @@ export const updateProfile = async (req: CustomRequest, res: Response) => {
 export const addProfileImage = async (req: CustomRequest, res: Response) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'Image is required!' });
+      return res.status(400).json({ message: "Image is required!" });
     }
 
     const date = Date.now();
-    let fileName = 'uploads/profiles/' + date + req.file.originalname;
+    let fileName = "uploads/profiles/" + date + req.file.originalname;
     renameSync(req.file.path, fileName);
 
     const updatedUser = await UserModel.findByIdAndUpdate(
@@ -167,8 +167,8 @@ export const addProfileImage = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while adding the user image', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while adding the user image", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -178,7 +178,7 @@ export const removeProfileImage = async (req: CustomRequest, res: Response) => {
     const { userId } = req;
     const user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found!' });
+      return res.status(404).json({ message: "User not found!" });
     }
     if (user.image) {
       unlinkSync(user.image);
@@ -187,11 +187,11 @@ export const removeProfileImage = async (req: CustomRequest, res: Response) => {
     await user.save();
     return res
       .status(200)
-      .json({ message: 'Profile image removed successfully.' });
+      .json({ message: "Profile image removed successfully." });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while removing the user image', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while removing the user image", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
@@ -199,12 +199,12 @@ export const removeProfileImage = async (req: CustomRequest, res: Response) => {
 export const logOut = async (req: Request, res: Response) => {
   try {
     // res.cookie("jwt", "", { maxAge: 1, secure: true, sameSite: "none" });
-    res.clearCookie('jwt');
-    return res.status(200).json({ message: 'Logout successfully.' });
+    res.clearCookie("jwt");
+    return res.status(200).json({ message: "Logout successfully." });
   } catch (error) {
     if (error instanceof Error) {
-      console.log('Error while logging out the user', error.message);
-      return res.status(500).json({ message: 'Internal Server Error!' });
+      console.log("Error while logging out the user", error.message);
+      return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
 };
