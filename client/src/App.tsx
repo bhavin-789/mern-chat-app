@@ -1,9 +1,14 @@
-import { FC, useEffect, useState } from "react";
+import { FC, lazy, Suspense, useEffect, useState } from "react";
 import "./App.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Auth from "./pages/auth";
-import Chat from "./pages/chat";
-import Profile from "./pages/profile";
+const Auth = lazy(() => import("./pages/auth"));
+const Chat = lazy(() => import("./pages/chat"));
+const Profile = lazy(() => import("./pages/profile"));
+const Accordion = lazy(() => import("./pages/accordion"));
+// import Auth from "./pages/auth";
+// import Chat from "./pages/chat";
+// import Profile from "./pages/profile";
+// import Accordion from "./pages/accordion";
 // import { useAppStore } from "./store";
 import { GET_USER_INFO } from "./utils/constants";
 import { apiClient } from "./lib/api-client";
@@ -70,7 +75,9 @@ const App: FC = () => {
           path="/auth"
           element={
             <AuthRoute>
-              <Auth />
+              <Suspense fallback={<p>Loading...</p>}>
+                <Auth />
+              </Suspense>
             </AuthRoute>
           }
         />
@@ -78,7 +85,9 @@ const App: FC = () => {
           path="/chat"
           element={
             <PrivateRoute>
-              <Chat />
+              <Suspense fallback={<p>Loading...</p>}>
+                <Chat />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -86,7 +95,19 @@ const App: FC = () => {
           path="/profile"
           element={
             <PrivateRoute>
-              <Profile />
+              <Suspense fallback={<p>Loading...</p>}>
+                <Profile />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/accordion"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<p>Loading...</p>}>
+                <Accordion />
+              </Suspense>
             </PrivateRoute>
           }
         />

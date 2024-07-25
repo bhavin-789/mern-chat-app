@@ -15,10 +15,16 @@ export const GET_DM_CONTACTS_ROUTE = `${CONTACT_ROUTES}/get-contacts-for-dm`;
 export const GET_ALL_CONTACTS_ROUTE = `${CONTACT_ROUTES}/get-all-contacts`;
 
 export const MESSAGES_ROUTES = "api/messages";
-export const GET_ALL_MESSAGES_ROUTE = `${MESSAGES_ROUTES}/get-messages`; 
+export const GET_ALL_MESSAGES_ROUTE = `${MESSAGES_ROUTES}/get-messages`;
 export const UPLOAD_FILE_ROUTE = `${MESSAGES_ROUTES}/upload-file`;
 
 export const CHANNEL_ROUTES = "api/channel";
 export const CREATE_CHANNEL_ROUTE = `${CHANNEL_ROUTES}/create-channel`;
 export const GET_USER_CHANNEL_ROUTE = `${CHANNEL_ROUTES}/get-user-channels`;
 export const GET_CHANNEL_MESSAGES_ROUTE = `${CHANNEL_ROUTES}/get-channel-messages`;
+
+export const ACCORDION_ROUTES = "api/accordions";
+export const GET_ACCORDIONS_ROUTE = `${ACCORDION_ROUTES}/get-accordions`;
+export const CREATE_ACCORDIONS_ROUTE = `${ACCORDION_ROUTES}/create-accordion`;
+export const DELETE_ACCORDIONS_ROUTE = `${ACCORDION_ROUTES}/delete-accordion`;
+export const EDIT_ACCORDIONS_ROUTE = `${ACCORDION_ROUTES}/edit-accordion`;

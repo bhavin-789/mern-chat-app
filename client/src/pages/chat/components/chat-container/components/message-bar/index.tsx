@@ -38,6 +38,13 @@ const MessageBar = () => {
   };
 
   const handleSendMessage = async () => {
+    console.log({
+      sender: userInfo.id,
+      content: message,
+      messageType: "text",
+      fileUrl: undefined,
+      channelId: selectedChatData._id,
+    });
     if (selectedChatType === "contact") {
       socket.emit("sendMessage", {
         sender: userInfo.id,
@@ -45,6 +52,7 @@ const MessageBar = () => {
         recipient: selectedChatData._id,
         messageType: "text",
         fileUrl: undefined,
+        // selectedChatType: selectedChatType,
       });
     } else if (selectedChatType === "channel") {
       socket.emit("send-channel-message", {
@@ -53,6 +61,7 @@ const MessageBar = () => {
         messageType: "text",
         fileUrl: undefined,
         channelId: selectedChatData._id,
+        // selectedChatType: selectedChatType,
       });
     }
     setMessage("");

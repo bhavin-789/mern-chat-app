@@ -43,12 +43,14 @@ export const SocketProvider = ({ children }) => {
         //   addContactsInDMContacts,
         // } = useAppStore.getState();
 
+        console.log("message", message);
+
         if (
           selectedChatType !== undefined &&
           (selectedChatData._id === message.sender._id ||
             selectedChatData._id === message.recipient._id)
         ) {
-          console.log("message received", message);
+          // if (selectedChatType !== undefined) {
           dispatch(addMessage(message));
         }
         dispatch(addContactsInDMContacts(message));
@@ -66,7 +68,9 @@ export const SocketProvider = ({ children }) => {
           selectedChatType !== undefined &&
           selectedChatData._id === message.channelId
         ) {
-          addMessage(message);
+          alert()
+          // if (selectedChatType !== undefined) {
+          dispatch(addMessage(message));
         }
         dispatch(addChannelInChannelList(message));
       };
@@ -78,7 +82,7 @@ export const SocketProvider = ({ children }) => {
         socket.current.disconnect();
       };
     }
-  }, [userInfo]);
+  }, [userInfo, selectedChatType, selectedChatData, dispatch]);
 
   return (
     <socketContext.Provider value={socket.current}>

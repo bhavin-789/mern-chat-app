@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
-  sender: mongoose.Types.ObjectId;
+  sender?: mongoose.Types.ObjectId;
   recipient?: mongoose.Types.ObjectId;
   messageType: "text" | "file";
   content?: string;
   fileUrl?: string;
-  timestamp: Date;
+  timestamp?: Date;
 }
 
 const messagesSchema: Schema<IMessage> = new mongoose.Schema({
@@ -43,6 +43,6 @@ const messagesSchema: Schema<IMessage> = new mongoose.Schema({
   },
 });
 
-const MessageModel = mongoose.model("Message", messagesSchema);
+const MessageModel = mongoose.model<IMessage>("Message", messagesSchema);
 
 export default MessageModel;

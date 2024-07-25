@@ -18,7 +18,8 @@ import {
   // getMessages,
   setFileDownloadProgress,
   setIsDownloading,
-  setSelectedChatMessages,
+  setSelectedSingleChannelMessages,
+  setSelectedSingleContactMessages,
 } from "@/store/slices/storeSlice";
 
 const MessageContainer = () => {
@@ -33,11 +34,13 @@ const MessageContainer = () => {
   //   setFileDownloadProgress,
   // } = useAppStore();
 
-  const [pageMessages, setPageMessages] = useState([]);
-
   const { userInfo } = useSelector((state: RootState) => state.store);
-  const { selectedChatType, selectedChatData, selectedChatMessages } =
-    useSelector((state: RootState) => state.store);
+  const {
+    selectedChatType,
+    selectedChatData,
+    selectedSingleChannelMessages,
+    selectedSingleContactMessages,
+  } = useSelector((state: RootState) => state.store);
 
   const dispatch = useDispatch();
 
@@ -45,62 +48,74 @@ const MessageContainer = () => {
   const [imageURL, setImageURL] = useState(null);
 
   const getMessages = async () => {
-    if (selectedChatData._id && selectedChatType === "contact") {
-      try {
-        const response = await apiClient.post(
-          GET_ALL_MESSAGES_ROUTE,
-          { id: selectedChatData._id },
-          { withCredentials: true }
-        );
-        console.log("response", response);
+    try {
+      const response = await apiClient.post(
+        GET_ALL_MESSAGES_ROUTE,
+        { id: selectedChatData._id },
+        { withCredentials: true }
+      );
 
-        if (response.data.messages) {
-          setPageMessages(response.data.messages);
-          // dispatch(setSelectedChatMessages(response.data.messages));
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(
-            "Error during fetching all the messages",
-            error.message
-          );
-        }
+      if (response.data.messages.length > 0) {
+        dispatch(setSelectedSingleContactMessages(response.data.messages));
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error during fetching all the messages", error.message);
       }
     }
   };
 
   const getChannelMessages = async () => {
-    if (selectedChatData._id && selectedChatType === "channel") {
-      try {
-        const response = await apiClient.get(
-          `${GET_CHANNEL_MESSAGES_ROUTE}/${selectedChatData._id}`,
-          { withCredentials: true }
+    try {
+      const response = await apiClient.get(
+        `${GET_CHANNEL_MESSAGES_ROUTE}/${selectedChatData._id}`,
+        { withCredentials: true }
+      );
+      if (response.data.messages.length > 0) {
+        dispatch(setSelectedSingleChannelMessages(response.data.messages));
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(
+          "Error during fetching all the channel messages",
+          error.message
         );
-        if (response.data.messages) {
-          setPageMessages(response.data.messages);
-          // dispatch(setSelectedChatMessages(response.data.messages));
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(
-            "Error during fetching all the channel messages",
-            error.message
-          );
-        }
       }
     }
   };
 
   useEffect(() => {
-    getMessages();
-    getChannelMessages();
+    if (
+      selectedChatData._id &&
+      selectedSingleContactMessages.length === 0 &&
+      selectedChatType === "contact"
+    ) {
+      getMessages();
+    }
+
+    if (
+      selectedChatData._id &&
+      selectedSingleChannelMessages.length === 0 &&
+      selectedChatType === "channel"
+    ) {
+      getChannelMessages();
+    }
+
+    // if (selectedChatData._id && !selectedChatMessages.length) {
+    //   if (selectedChatType === "contact") {
+    //     // getMessages();
+    //   }
+    //   if (selectedChatType === "channel") {
+    //     // getChannelMessages();
+    //   }
+    // }
   }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behaviour: "smooth" });
     }
-  }, [pageMessages]);
+  }, [selectedChatData, selectedChatType]);
 
   const checkIfImage = (filePath) => {
     const imageRegex =
@@ -111,22 +126,39 @@ const MessageContainer = () => {
   const renderMessages = () => {
     let lastDate = null;
     // return selectedChatMessages.map((message, index) => {
-    return pageMessages.map((message, index) => {
-      const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
-      const showDate = messageDate !== lastDate;
-      lastDate = messageDate;
-      return (
-        <div key={index}>
-          {showDate && (
-            <div className="text-center text-grey-500 my-2">
-              {moment(message.timestamp).format("LL")}
+    return selectedChatType === "channel"
+      ? selectedSingleChannelMessages.map((message, index) => {
+          const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
+          const showDate = messageDate !== lastDate;
+          lastDate = messageDate;
+          return (
+            <div key={index}>
+              {showDate && (
+                <div className="text-center text-grey-500 my-2">
+                  {moment(message.timestamp).format("LL")}
+                </div>
+              )}
+              {/* {selectedChatType === "contact" && renderDMMessages(message)} */}
+              {selectedChatType === "channel" && renderChannelMessages(message)}
             </div>
-          )}
-          {selectedChatType === "contact" && renderDMMessages(message)}
-          {selectedChatType === "channel" && renderChannelMessages(message)}
-        </div>
-      );
-    });
+          );
+        })
+      : selectedSingleContactMessages.map((message, index) => {
+          const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
+          const showDate = messageDate !== lastDate;
+          lastDate = messageDate;
+          return (
+            <div key={index}>
+              {showDate && (
+                <div className="text-center text-grey-500 my-2">
+                  {moment(message.timestamp).format("LL")}
+                </div>
+              )}
+              {selectedChatType === "contact" && renderDMMessages(message)}
+              {/* {selectedChatType === "channel" && renderChannelMessages(message)} */}
+            </div>
+          );
+        });
   };
 
   const downloadFile = async (url) => {
@@ -153,7 +185,6 @@ const MessageContainer = () => {
   };
 
   const renderDMMessages = (message) => {
-    console.log("renderDMMessages: ", message);
     return (
       <div
         className={`${
@@ -291,7 +322,7 @@ const MessageContainer = () => {
               >
                 {message.sender.firstName
                   ? message.sender.firstName.split("")?.[0]
-                  : message.sender.email.split("")?.[0]}
+                  : message.sender?.email?.split("")?.[0]}
               </AvatarFallback>
             </Avatar>
             <span className="text-sm text-white/60">{`${message.sender.firstName} ${message.sender.lastName}`}</span>

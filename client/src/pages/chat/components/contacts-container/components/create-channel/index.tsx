@@ -40,11 +40,13 @@ const CreateChannel = () => {
       const response = await apiClient.get(GET_ALL_CONTACTS_ROUTE, {
         withCredentials: true,
       });
-      if (response.status === 200 && response.data.contacts) {
+      if (response.status === 200 && response.data.contacts.length > 0) {
         setAllContacts(response.data.contacts);
       }
     };
-    getData();
+    if (!allContacts.length) {
+      getData();
+    }
   }, []);
 
   const creteChannel = async () => {

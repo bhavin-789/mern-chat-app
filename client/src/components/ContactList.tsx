@@ -5,7 +5,7 @@ import { getColor } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedChatData,
-  setSelectedChatMessages,
+  // setSelectedChatMessages,
   setSelectedChatType,
 } from "@/store/slices/storeSlice";
 import { RootState } from "@/store";
@@ -20,7 +20,9 @@ const ContactList = ({ contacts, isChannel = false }) => {
   // } = useAppStore();
 
   const dispatch = useDispatch();
-  const { selectedChatData } = useSelector((state: RootState) => state.store);
+  const { selectedChatData, directMessagesContacts } = useSelector(
+    (state: RootState) => state.store
+  );
 
   const handleClick = (contact) => {
     if (isChannel) {
@@ -30,7 +32,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
     }
     dispatch(setSelectedChatData(contact));
     if (selectedChatData && selectedChatData._id !== contact._id) {
-      dispatch(setSelectedChatMessages([]));
+      // dispatch(setSelectedChatMessages([]));
     }
   };
   return (
@@ -41,7 +43,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
           className={`pl-10 py-2 transition-all duration-300 cursor-pointer ${
             selectedChatData && selectedChatData._id === contact._id
               ? "bg-[#8417ff] hover:bg-[#8417ff]"
-              : "hover:bg-[#f1f1f1]"
+              : "hover:bg-[#f1f1f1] hover:text-red-900"
           }`}
           onClick={() => handleClick(contact)}
         >
@@ -63,14 +65,14 @@ const ContactList = ({ contacts, isChannel = false }) => {
                     } uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center rounded-full`}
                   >
                     {contact?.firstName
-                      ? contact?.firstName.split("")?.[0]
-                      : contact?.email.split("")?.[0]}
+                      ? contact?.firstName?.split("")?.[0]
+                      : contact?.email?.split("")?.[0]}
                   </div>
                 )}
               </Avatar>
             )}
             {isChannel && (
-              <div className="bg-[#ffff22] h-10 w-10 flex items-center rounded-full">
+              <div className="bg-[#ffff22] h-10 w-10 flex items-center justify-center rounded-full">
                 #
               </div>
             )}

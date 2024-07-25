@@ -100,7 +100,8 @@ interface UserInfo {
 interface StoreState {
   selectedChatType?: any;
   selectedChatData?: any;
-  selectedChatMessages: any[];
+  selectedSingleContactMessages: any[];
+  selectedSingleChannelMessages: any[];
   directMessagesContacts: any[];
   isUploading: any;
   isDownloading: any;
@@ -113,7 +114,8 @@ interface StoreState {
 const initialState: StoreState = {
   selectedChatType: undefined,
   selectedChatData: undefined,
-  selectedChatMessages: [],
+  selectedSingleContactMessages: [],
+  selectedSingleChannelMessages: [],
   directMessagesContacts: [],
   isUploading: false,
   isDownloading: false,
@@ -182,10 +184,18 @@ export const storeSlice = createSlice({
 
     // setSelectedChatMessages: (selectedChatMessages) =>
     //   set({ selectedChatMessages }),
-    setSelectedChatMessages: (state, action: PayloadAction<any>) => {
-      console.log("action==========>>: ", action);
+    setSelectedSingleContactMessages: (state, action: PayloadAction<any>) => {
       // console.log("before: ", state.selectedChatMessages);
-      state.selectedChatMessages = action.payload;
+      state.selectedSingleContactMessages = action.payload;
+      // console.log("after: ", state.selectedChatMessages);
+      // state.selectedChatMessages.push(action.payload);
+    },
+
+    // setSelectedChatMessages: (selectedChatMessages) =>
+    //   set({ selectedChatMessages }),
+    setSelectedSingleChannelMessages: (state, action: PayloadAction<any>) => {
+      // console.log("before: ", state.selectedChatMessages);
+      state.selectedSingleChannelMessages = action.payload;
       // console.log("after: ", state.selectedChatMessages);
       // state.selectedChatMessages.push(action.payload);
     },
@@ -214,7 +224,8 @@ export const storeSlice = createSlice({
     closeChat: (state) => {
       state.selectedChatType = undefined;
       state.selectedChatData = undefined;
-      state.selectedChatMessages = [];
+      state.selectedSingleChannelMessages = [];
+      state.selectedSingleContactMessages = [];
     },
 
     // addMessage: (message) => {
@@ -240,7 +251,7 @@ export const storeSlice = createSlice({
     // },
     addMessage: (state, action: PayloadAction<any>) => {
       // const selectedChatMessages = get().selectedChatMessages;
-      const { message } = action.payload;
+      const message = action.payload;
       const selectedChatType = state.selectedChatType;
       const recipient: any =
         selectedChatType === "channel"
@@ -249,11 +260,20 @@ export const storeSlice = createSlice({
       const sender: any =
         selectedChatType === "channel" ? message.sender : message.sender._id;
 
-      state.selectedChatMessages.push({
-        ...message,
-        recipient,
-        sender,
-      });
+      if (selectedChatType === "channel") {
+        state.selectedSingleChannelMessages.push({
+          ...message,
+          recipient,
+          sender,
+        });
+      }
+      if (selectedChatType === "contact") {
+        state.selectedSingleContactMessages.push({
+          ...message,
+          recipient,
+          sender,
+        });
+      }
     },
 
     // addChannelInChannelList: (message) => {
@@ -352,7 +372,8 @@ export const {
   closeChat,
   addChannel,
   setDirectMessagesContacts,
-  setSelectedChatMessages,
+  setSelectedSingleContactMessages,
+  setSelectedSingleChannelMessages,
   setSelectedChatType,
   setFileDownloadProgress,
   setFileUploadProgress,

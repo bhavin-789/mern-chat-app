@@ -24,6 +24,7 @@ const setupSocket = (server: any) => {
   };
 
   const sendMessage = async (message: any) => {
+    console.log("backendContactMessage: ", message);
     const senderSocketId = userSocketMap.get(message.sender);
     const recipientSocketId = userSocketMap.get(message.recipient);
 
@@ -31,17 +32,34 @@ const setupSocket = (server: any) => {
     const messageData = await MessageModel.findById(createdMessage._id)
       .populate("sender", "id email firstName lastName image color")
       .populate("recipient", "id email firstName lastName image color");
+    // .lean()
 
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("receiveMessage", messageData);
     }
+    // if (recipientSocketId) {
+    //   io.to(recipientSocketId).emit("receiveMessage", {
+    //     ...messageData,
+    //     selectedChatType: message.selectedChatType,
+    //   });
+    // }
 
     if (senderSocketId) {
+      // console.log("data", data);
       io.to(senderSocketId).emit("receiveMessage", messageData);
     }
   };
+  //   if (senderSocketId) {
+  //     // console.log("data", data);
+  //     io.to(senderSocketId).emit("receiveMessage", {
+  //       ...messageData,
+  //       selectedChatType: message.selectedChatType,
+  //     });
+  //   }
+  // };
 
   const sendChannelMessage = async (message: any) => {
+    console.log("message backend: ", message);
     const { channelId, sender, content, messageType, fileUrl } = message;
 
     const createdMessage = await MessageModel.create({

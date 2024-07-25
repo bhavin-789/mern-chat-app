@@ -80,7 +80,13 @@ const NewDM = () => {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <Dialog open={openNewContactModal} onOpenChange={setOpenNewContactModal}>
+      <Dialog
+        open={openNewContactModal}
+        onOpenChange={() => {
+          setOpenNewContactModal(false);
+          setSearchedContacts([]);
+        }}
+      >
         <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
           <DialogHeader>
             <DialogTitle>PLease select a contact</DialogTitle>

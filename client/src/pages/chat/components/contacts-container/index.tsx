@@ -15,6 +15,7 @@ import {
   setChannels,
   setDirectMessagesContacts,
 } from "@/store/slices/storeSlice";
+import { Link } from "react-router-dom";
 
 const ContactsContainer = () => {
   // const {
@@ -34,9 +35,7 @@ const ContactsContainer = () => {
       const response = await apiClient.get(GET_DM_CONTACTS_ROUTE, {
         withCredentials: true,
       });
-      console.log("getContacts: ", response.data);
-      if (response.data.contacts) {
-        // setData(response.data.contacts);
+      if (response.data.contacts.length > 0) {
         dispatch(setDirectMessagesContacts(response.data.contacts));
       }
     };
@@ -44,20 +43,17 @@ const ContactsContainer = () => {
       const response = await apiClient.get(GET_USER_CHANNEL_ROUTE, {
         withCredentials: true,
       });
-      console.log("getChannels: ", response.data);
-      if (response.data.channels) {
+      if (response.data.channels.length > 0) {
         dispatch(setChannels(response.data.channels));
       }
     };
-    // if (directMessagesContacts.length === 0) {
-    //   // getContacts();
-    // }
+    if (!directMessagesContacts.length) {
+      getContacts();
+    }
 
-    // if (channels.length === 0) {
-    // getChannels();
-    // }
-    // getContacts();
-    // getChannels();
+    if (!channels.length) {
+      getChannels();
+    }
   }, []);
 
   return (
@@ -82,6 +78,14 @@ const ContactsContainer = () => {
         <div className="max-h-38vh overflow-y-auto scrollbar-hidden">
           <ContactList contacts={channels} isChannel={true} />
         </div>
+      </div>
+      <div className="my-5">
+        <Link
+          to="/accordion"
+          className="flex item-center justify-between pr-10"
+        >
+          <Title text="Accordion" />
+        </Link>
       </div>
       <ProfileInfo />
     </div>
