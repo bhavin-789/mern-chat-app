@@ -25,3 +25,5 @@ export const animationDefaultOptions = {
   autoplay: true,
   animationData,
 };
+
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

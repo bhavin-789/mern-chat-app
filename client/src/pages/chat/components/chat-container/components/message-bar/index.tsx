@@ -3,7 +3,6 @@ import { GrAttachment } from "react-icons/gr";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import EmojiPicker from "emoji-picker-react";
-// import { useAppStore } from "@/store";
 import { useSocket } from "@/context/SocketContext";
 import { apiClient } from "@/lib/api-client";
 import { UPLOAD_FILE_ROUTE } from "@/utils/constants";
@@ -18,13 +17,6 @@ const MessageBar = () => {
   const emojiRef = useRef<HTMLDivElement>(null);
   const socket = useSocket();
   const fileInputRef = useRef(null);
-  // const {
-  //   selectedChatType,
-  //   selectedChatData,
-  //   userInfo,
-  //   setIsUploading,
-  //   setFileUploadProgress,
-  // } = useAppStore();
   const { userInfo } = useSelector((state: RootState) => state.store);
   const { selectedChatType, selectedChatData } = useSelector(
     (state: RootState) => state.store
@@ -38,30 +30,27 @@ const MessageBar = () => {
   };
 
   const handleSendMessage = async () => {
-    console.log({
-      sender: userInfo.id,
-      content: message,
-      messageType: "text",
-      fileUrl: undefined,
-      channelId: selectedChatData._id,
-    });
+    if (!socket || !socket.connected) {
+      console.error("Socket is not connected");
+      return;
+    }
+
     if (selectedChatType === "contact") {
-      socket.emit("sendMessage", {
+      socket.emit("send-message", {
         sender: userInfo.id,
         content: message,
         recipient: selectedChatData._id,
         messageType: "text",
         fileUrl: undefined,
-        // selectedChatType: selectedChatType,
       });
     } else if (selectedChatType === "channel") {
+      alert();
       socket.emit("send-channel-message", {
         sender: userInfo.id,
         content: message,
         messageType: "text",
         fileUrl: undefined,
         channelId: selectedChatData._id,
-        // selectedChatType: selectedChatType,
       });
     }
     setMessage("");
@@ -92,9 +81,8 @@ const MessageBar = () => {
         });
         if (response.status === 200 && response.data) {
           dispatch(setIsUploading(false));
-          // setIsUploading(false);
           if (selectedChatType === "contact") {
-            socket.emit("sendMessage", {
+            socket.emit("send-message", {
               sender: userInfo.id,
               content: undefined,
               recipient: selectedChatData._id,
@@ -114,7 +102,7 @@ const MessageBar = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        setIsUploading(false);
+        dispatch(setIsUploading(false));
         console.error("Error during sending the file", error.message);
       }
     }
@@ -131,6 +119,7 @@ const MessageBar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [emojiRef]);
+
   return (
     <div className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-6 gap-6">
       <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-5 pr-5">

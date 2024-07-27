@@ -1,5 +1,5 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { colors, getColor } from "@/lib/utils";
+import { colors, delay, getColor } from "@/lib/utils";
 // import { useAppStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
@@ -19,6 +19,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { setUserInfo } from "@/store/slices/storeSlice";
+import Loader from "@/components/Loader";
 
 const Profile = () => {
   // const { userInfo, setUserInfo } = useAppStore();
@@ -40,6 +41,7 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [loadingForSaveChanges, setLoadingForSaveChanges] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateProfile = () => {
@@ -60,6 +62,7 @@ const Profile = () => {
 
   const saveChanges = async () => {
     if (validateProfile()) {
+      setLoadingForSaveChanges(true);
       try {
         const response = await apiClient.put(
           UPDATE_PROFILE_ROUTE,
@@ -67,6 +70,7 @@ const Profile = () => {
           { withCredentials: true }
         );
         if (response.status === 200 && response.data) {
+          await delay(3000);
           dispatch(setUserInfo({ ...response.data }));
           // setUserInfo({ ...response.data });
           toast.success("Profile updated successfully.");
@@ -76,6 +80,8 @@ const Profile = () => {
         if (error instanceof Error) {
           console.log("Error during save changes", error.message);
         }
+      } finally {
+        setLoadingForSaveChanges(false);
       }
     }
   };
@@ -219,10 +225,13 @@ const Profile = () => {
         </div>
         <div className="w-full">
           <Button
-            className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+            className="h-16 w-full flex gap-6 bg-purple-700 hover:bg-purple-900 transition-all duration-300"
             onClick={saveChanges}
           >
-            Save Changes
+            <span>Save Changes</span>
+            {loadingForSaveChanges && (
+              <span className="spinnerForSaveChanges"></span>
+            )}
           </Button>
         </div>
       </div>
@@ -230,4 +239,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Loader(Profile);

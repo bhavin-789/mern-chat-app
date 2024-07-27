@@ -4,7 +4,13 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 const Auth = lazy(() => import("./pages/auth"));
 const Chat = lazy(() => import("./pages/chat"));
 const Profile = lazy(() => import("./pages/profile"));
-const Accordion = lazy(() => import("./pages/accordion"));
+const AccordionPagination = lazy(() => import("./pages/accordionPagination"));
+const AccordionInfiniteScrolling = lazy(
+  () => import("./pages/accordionInfineScrolling")
+);
+// import { SocketProvider } from "./context/SocketContext";
+
+// const Accordion = lazy(() => import("./pages/accordionPagination"));
 // import Auth from "./pages/auth";
 // import Chat from "./pages/chat";
 // import Profile from "./pages/profile";
@@ -15,6 +21,8 @@ import { apiClient } from "./lib/api-client";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { setUserInfo } from "./store/slices/storeSlice";
+// import AccordionInfiniteScrolling from "./pages/accordionInfineScrolling";
+// import AccordionPagination from "./pages/accordionPagination";
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -85,9 +93,11 @@ const App: FC = () => {
           path="/chat"
           element={
             <PrivateRoute>
+              {/* <SocketProvider> */}
               <Suspense fallback={<p>Loading...</p>}>
                 <Chat />
               </Suspense>
+              {/* </SocketProvider> */}
             </PrivateRoute>
           }
         />
@@ -102,11 +112,21 @@ const App: FC = () => {
           }
         />
         <Route
-          path="/accordion"
+          path="/accordion-pagination"
           element={
             <PrivateRoute>
               <Suspense fallback={<p>Loading...</p>}>
-                <Accordion />
+                <AccordionPagination />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/accordion-infinite-scrolling"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<p>Loading...</p>}>
+                <AccordionInfiniteScrolling />
               </Suspense>
             </PrivateRoute>
           }

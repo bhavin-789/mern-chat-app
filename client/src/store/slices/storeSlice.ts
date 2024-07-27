@@ -270,8 +270,8 @@ export const storeSlice = createSlice({
       if (selectedChatType === "contact") {
         state.selectedSingleContactMessages.push({
           ...message,
-          recipient,
-          sender,
+          // recipient,
+          // sender,
         });
       }
     },
@@ -291,7 +291,7 @@ export const storeSlice = createSlice({
     // },
     addChannelInChannelList: (state, action: PayloadAction<any>) => {
       // const channels = get().channels;
-      const { message } = action.payload;
+      const message = action.payload;
       const { channels } = state;
       const data = channels.find(
         (channel) => channel._id === message.channelId

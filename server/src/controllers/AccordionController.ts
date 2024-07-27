@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import AccordionModel from "../models/AccordionModal";
 
-export const getAccordions = async (req: Request, res: Response) => {
+export const getAccordions = async (req: any, res: Response) => {
   try {
-    const accordions = await AccordionModel.find({});
-    return res.status(200).json({ accordions });
+    const page = parseInt(req?.query?.page) || 1;
+    const limit = parseInt(req?.query?.limit) || 10;
+    const skip = (page - 1) * limit;
+    const accordions = await AccordionModel.find({}).limit(limit).skip(skip);
+    const totalCounts = await AccordionModel.countDocuments();
+    return res.status(200).json({ accordions, totalCounts });
   } catch (error) {
     if (error instanceof Error) {
       console.log("Error while fetching all the accordions", error.message);

@@ -81,10 +81,18 @@ const ContactsContainer = () => {
       </div>
       <div className="my-5">
         <Link
-          to="/accordion"
+          to="/accordion-pagination"
           className="flex item-center justify-between pr-10"
         >
-          <Title text="Accordion" />
+          <Title text="Accordion Pagination" />
+        </Link>
+      </div>
+      <div className="my-5">
+        <Link
+          to="/accordion-infinite-scrolling"
+          className="flex item-center justify-between pr-10"
+        >
+          <Title text="Accordion Infinite Scrolling" />
         </Link>
       </div>
       <ProfileInfo />

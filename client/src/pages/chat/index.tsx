@@ -7,6 +7,7 @@ import EmptyChatContainer from "./components/empty-chat-container";
 import ChatContainer from "./components/chat-container";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import Loader from "@/components/Loader";
 // import { getMessages } from "@/store/slices/storeSlice";
 
 const Chat = () => {

@@ -151,7 +151,9 @@ const MessageContainer = () => {
             <div key={index}>
               {showDate && (
                 <div className="text-center text-grey-500 my-2">
-                  {moment(message.timestamp).format("LL")}
+                  {message.timestamp === Date.now()
+                    ? "today"
+                    : moment(message.timestamp).format("LL")}
                 </div>
               )}
               {selectedChatType === "contact" && renderDMMessages(message)}
@@ -249,6 +251,7 @@ const MessageContainer = () => {
   };
 
   const renderChannelMessages = (message) => {
+    console.log("=================--------------: ", message);
     return (
       <div
         className={`mt-5 ${

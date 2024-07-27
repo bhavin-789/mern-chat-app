@@ -108,7 +108,7 @@ export const userInfo = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      console.log("Error while fetching the user info", error.message);
+      console.log("Error while fetching the user info", error);
       return res.status(500).json({ message: "Internal Server Error!" });
     }
   }
