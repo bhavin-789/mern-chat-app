@@ -16,8 +16,12 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    extend: {
-      colors: {
+
+
+extend: {
+  colors: {
+        mainBackgroundColor: "#0D1117",
+        columnBackgroundColor: "#161C22",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -95,6 +95,22 @@ const ContactsContainer = () => {
           <Title text="Accordion Infinite Scrolling" />
         </Link>
       </div>
+      <div className="my-5">
+        <Link
+          to="/kanban-drag-and-drop"
+          className="flex item-center justify-between pr-10"
+        >
+          <Title text="Kanban Drag&Drop" />
+        </Link>
+      </div>
+      <div className="my-5">
+        <Link
+          to="/file-folder"
+          className="flex item-center justify-between pr-10"
+        >
+          <Title text="File and Folder" />
+        </Link>
+      </div>
       <ProfileInfo />
     </div>
   );

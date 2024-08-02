@@ -21,6 +21,8 @@ import { apiClient } from "./lib/api-client";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { setUserInfo } from "./store/slices/storeSlice";
+import KanbanDragDrop from "./pages/KanbanDragDrop";
+import FileFolder from "./pages/fileFolder";
 // import AccordionInfiniteScrolling from "./pages/accordionInfineScrolling";
 // import AccordionPagination from "./pages/accordionPagination";
 
@@ -127,6 +129,26 @@ const App: FC = () => {
             <PrivateRoute>
               <Suspense fallback={<p>Loading...</p>}>
                 <AccordionInfiniteScrolling />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/kanban-drag-and-drop"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<p>Loading...</p>}>
+                <KanbanDragDrop />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/file-folder"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<p>Loading...</p>}>
+                <FileFolder />
               </Suspense>
             </PrivateRoute>
           }
